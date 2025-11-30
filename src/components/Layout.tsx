@@ -19,7 +19,7 @@ const Layout = ({ children }: LayoutProps) => {
       <BackgroundParticles />
       {/* Toaster for toast notifications */}
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
           style: {
             background: '#0b0f1a',

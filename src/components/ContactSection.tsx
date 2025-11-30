@@ -1,34 +1,43 @@
 /**
  * ContactSection - Contact form and contact information
  * Two-column layout with form animations
+ * Uses Web3Forms API for form submission
  */
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import SectionWrapper from './SectionWrapper';
 
 const ContactSection = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', message: '' });
-    }, 3000);
-  };
+    setIsSubmitting(true);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success('Message Sent Successfully');
+        form.reset();
+      } else {
+        toast.error('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      toast.error('An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -86,68 +95,60 @@ const ContactSection = () => {
         </motion.div>
 
         {/* Right: Contact Form */}
-        <motion.form
+        <motion.div
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.8 }}
-          onSubmit={handleSubmit}
-          className="glass-card p-8 rounded-xl border border-border-subtle space-y-6"
+          className="glass-card p-8 rounded-xl border border-border-subtle"
         >
-          <div>
-            <label htmlFor="name" className="block text-text-primary font-medium mb-2">
-              Name
-            </label>
+          <form
+            action="https://api.web3forms.com/submit"
+            method="POST"
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
+            <input
+              type="hidden"
+              name="access_key"
+              value="a87da262-6d74-4afd-9c3e-13a73b857fc2"
+            />
+
             <input
               type="text"
-              id="name"
               name="name"
-              value={formData.name}
-              onChange={handleChange}
+              placeholder="Your Name"
               required
-              className="w-full px-4 py-3 bg-soft border border-border-subtle rounded-lg text-text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300"
-              placeholder="Your name"
+              className="w-full p-3 rounded-md bg-white/5 border border-white/10 focus:border-cyan-400 text-text-primary focus:outline-none transition-all duration-300"
             />
-          </div>
-          <div>
-            <label htmlFor="email" className="block text-text-primary font-medium mb-2">
-              Email
-            </label>
+
             <input
               type="email"
-              id="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
+              placeholder="Your Email"
               required
-              className="w-full px-4 py-3 bg-soft border border-border-subtle rounded-lg text-text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300"
-              placeholder="your.email@example.com"
+              className="w-full p-3 rounded-md bg-white/5 border border-white/10 focus:border-cyan-400 text-text-primary focus:outline-none transition-all duration-300"
             />
-          </div>
-          <div>
-            <label htmlFor="message" className="block text-text-primary font-medium mb-2">
-              Message
-            </label>
+
             <textarea
-              id="message"
               name="message"
-              value={formData.message}
-              onChange={handleChange}
+              placeholder="Your Message"
               required
-              rows={6}
-              className="w-full px-4 py-3 bg-soft border border-border-subtle rounded-lg text-text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300 resize-none"
-              placeholder="Your message..."
-            />
-          </div>
-          <motion.button
-            type="submit"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full px-6 py-3 bg-accent text-soft font-semibold rounded-lg hover:bg-accent/90 transition-colors duration-300"
-          >
-            {submitted ? "Thank you! I'll get back to you soon." : 'Send Message'}
-          </motion.button>
-        </motion.form>
+              rows={5}
+              className="w-full p-3 rounded-md bg-white/5 border border-white/10 focus:border-cyan-400 text-text-primary focus:outline-none transition-all duration-300 resize-none"
+            ></textarea>
+
+            <motion.button
+              type="submit"
+              disabled={isSubmitting}
+              whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+              whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+              className="px-6 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-600 transition text-white font-semibold w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Sending...' : 'Send Message'}
+            </motion.button>
+          </form>
+        </motion.div>
       </div>
     </SectionWrapper>
   );
