@@ -7,7 +7,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit';
-const WEB3FORMS_ACCESS_KEY = 'bb6c1a6d-5abc-40d3-a493-eb99f187b265'; // I will replace later
+const WEB3FORMS_ACCESS_KEY = 'a87da262-6d74-4afd-9c3e-13a73b857fc2'; // I will replace later
 
 const ContactPage = () => {
   const [name, setName] = useState('');
